@@ -39,12 +39,6 @@ contract VotingSystem {
     mapping(uint => uint) public voterProxy; // Voter ID to Proxy Voter ID
     mapping(uint => uint) public voterWithdrawal; // Voter ID to Candidate ID for Withdrawal
 
-    mapping(uint => uint) public voterDeposit;  // Voter ID to deposited tokens
-    mapping(uint => bool) public automaticWithdrawalApproved;  // Voter ID to withdrawal approval status
-    uint public delegationTimeLimit;  // Time limit for vote delegation in seconds
-
-
-
     constructor() {
         electionCommission = msg.sender;
     }
@@ -148,44 +142,5 @@ contract VotingSystem {
             }
         }
     }
-
-    function setDelegationTimeLimit(uint _timeLimit) external onlyCommissioner() {
-        delegationTimeLimit = _timeLimit;
-    }
-
-    function registerCandidate(string calldata _name, string calldata _party, uint _age, string calldata _gender) external payable {
-        require(msg.value >= 1 ether, "Candidate registration fee is 1 ether");
-        // ... (existing candidate registration logic)
-    }
-
-    function rewardVoter(uint _voterId) external onlyCommissioner() {
-        require(voters[_voterId].voterAddress != address(0), "Voter does not exist");
-        // Reward the voter with a token (assumed ERC20 token transfer)
-        // token.transfer(voters[_voterId].voterAddress, 1);  // assuming 1 token as a reward
-    }
-
-    function voteWithWeight(uint _voterId, uint _candidateId, uint _weight) external isVotingAllowed() {
-        require(_weight > 0, "Vote weight must be greater than 0");
-        require(voters[_voterId].voteCandidateId == 0, "Already voted");
-        require(voters[_voterId].voterAddress == msg.sender, "You are not a voter");
-        require(votingPaused == false, "Voting is paused");
-        require(_candidateId > 0 && _candidateId < nextCandidateId, "Invalid Candidate Id");
-
-        voters[_voterId].voteCandidateId = _candidateId;
-        candidates[_candidateId].votes += _weight;
-
-        // Mark the vote as unverified initially
-        voteVerified[_voterId] = false;
-    }
-
-    function automaticWithdrawal(uint _voterId) external isVotingOver() {
-        require(voters[_voterId].voterAddress == msg.sender, "You are not the voter");
-        require(automaticWithdrawalApproved[_voterId] == true, "Automatic withdrawal not approved");
-
-        // Withdraw the voter's deposited tokens (assumed ERC20 token transfer)
-        // token.transfer(voters[_voterId].voterAddress, voterDeposit[_voterId]);
-        // Reset withdrawal approval status
-        automaticWithdrawalApproved[_voterId] = false;
-    }
-
 }
+
